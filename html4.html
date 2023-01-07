@@ -1,0 +1,268 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <link rel="stylesheet" href="http://cdn.webix.com/edge/webix.css" type="text/css">
+    <script src="http://cdn.webix.com/edge/webix.js" type="text/javascript"></script>
+    <title>Final Project Testing</title>
+<style>
+	.up{
+        text-align: center;
+	}
+
+.new {
+  column-width: 100px;
+}
+
+</style>
+</head>
+
+<body>
+    <script type="text/javascript" charset="utf-8">
+        const json = `{
+	"recommended_settings": [
+		{
+			"variable": "Doors",
+			"values": [
+				"four",
+				"four",
+				"four",
+				"two",
+				"two"
+                 	
+			]
+		},
+		{
+			"variable": "DriveWheels",
+			"values": [
+				"fwd",
+				"fwd",
+				"fwd",
+				"fwd",
+                "fwd"
+                		
+			]
+		},
+		{
+			"variable": "Price",
+			"values": [
+				1000,
+				1000,
+				1000,
+				1000,
+                1000
+                		
+			]
+		},
+		{
+			"variable": "Length",
+			"values": [
+				176.6,
+				176.6,
+				177.3,
+				192.3,
+                192.3
+                		
+			]
+		},
+		{
+			"variable": "BodyStyle",
+			"values": [
+				"sedan",
+				"sedan",
+				"sedan",
+				"hatchback",
+				"hatchback"
+                		
+             ]
+		},
+		{
+			"variable": "Width",
+			"values": [
+				66.2,
+				66.4,
+				66.3,
+				71.4,
+                71.4
+            ]
+		}
+	],
+	"similarity_scores": [
+		"1",
+		"0.9",
+		"0.85",
+		"0.7",
+        "0.6"
+	]
+}`
+		var obj = JSON.parse(json);
+        console.log(obj.similarity_scores[0]);
+
+        var recommend_arr = obj.recommended_settings;
+        var columns_arr = [];
+
+        for (var_rec of recommend_arr) {
+            console.log(var_rec.variable);
+            var col_config = {};
+            col_config.id = var_rec.variable;
+            col_config.header = var_rec.variable;
+			col_config.sort="string";
+            columns_arr.push(col_config);
+			
+        }
+        columns_arr.push({id:"similarity_scores", header:"similarity_scores",sort:"string",adjust:"header"});
+
+        var data_arr = [];
+        //detect number of recommended settings (rows)
+        var num_rows = obj.similarity_scores.length;
+        console.log(num_rows);
+
+        for (var i = 0; i < num_rows; i++) {
+            var data_config = {};
+            for (var_rec of recommend_arr) {
+                const col_name = var_rec.variable;
+                data_config[col_name] = var_rec.values[i];
+            }
+            data_config.similarity_scores= obj.similarity_scores[i];
+            data_arr.push(data_config);
+ 
+
+        }
+
+        console.log(data_arr);
+		var seocnd_columns_arr = [];
+		seocnd_columns_arr.push({id:"Variables", header:"Variables",sort:"string"});
+		seocnd_columns_arr.push({id:"Statistic", header:"Statistic",sort:"string",width:100});
+		seocnd_columns_arr.push({id:"Recommended Value", header:"Recommended Value",adjust:"header", sort:"string"});
+		function getMode(arrlist) {
+			var d = {};
+			for(ele of arrlist) {
+				d[ele] ? d[ele] += 1 : d[ele] = 1;
+			}
+			var max_entry = [];
+			for(var_list of Object.entries(d)) {
+				if(!max_entry.length) {
+					max_entry = var_list;
+				} else {
+					if(max_entry[1] < var_list[1]) {
+						max_entry = var_list;
+					}
+				}
+			}
+			//console.log(max_entry);
+			var val = max_entry[1];
+			var res = [];
+			res = Object.entries(d).filter(ele => ele[1] >= val);
+			console.log("res value",res);
+			return res;
+		}
+		
+		function getMean(arrlist) {
+			var n = arrlist.length;
+			var res = arrlist.reduce((a,b) => a+b, 0);
+			console.log(res);
+			return res/n;
+		}
+		function getMedian(arr) {
+			const mid = Math.floor(arr.length / 2),
+			nums = [...arr].sort((a, b) => a - b);
+			return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+
+		}
+		
+		// second table
+		var second_data_arr = [];
+		obj.recommended_settings.map((element) => {
+			var second_data_config = {};
+			if(typeof element.values[0] === "string"){
+				var res = getMode(element.values);
+				res.map(e => {
+					second_data_config = {};
+					second_data_config["Variables"] = element.variable;
+					second_data_config["Statistic"] = "Mode";
+					second_data_config["Recommended Value"] = e[0];
+					second_data_arr.push(second_data_config);
+					return 0;
+				});
+			} 
+			else if(typeof element.values[0] === "number"){
+				var res = getMedian(element.values);
+				second_data_config["Variables"] = element.variable;
+				second_data_config["Statistic"] = "Median";
+				second_data_config["Recommended Value"] = res;
+				second_data_arr.push(second_data_config);
+			}
+			
+			return 0;
+		})
+		console.log(second_data_arr);
+        var datatable = webix.ui({
+          rows:[
+				{ view:"template", template:"<h1>Omnibus Data Analysis Engine</h2>", autoheight:true, borderless:true,css:"up"},
+				{
+					cols:[
+						{ view:"template", template:"<h4>Top 10 Recommended Rows</h4>",autoheight:true, borderless:true,css:"up" },
+						{ view:"template", template:"<h4>Recommended Value Statistics</h4>", autoheight:true, borderless:true,css:"up" }
+					]
+				},
+
+				{
+					cols:[
+						{width:44},
+							{	
+							view: "datatable",
+							columns: columns_arr,
+							data: data_arr,
+							width:750,
+							borderless:true
+  							
+						},
+						{
+							width:110,
+						},
+						{
+							view: "datatable",
+							columns: seocnd_columns_arr,
+							data: second_data_arr,
+							width:400,
+							borderless:true
+							
+						},
+						{
+							width:44
+						}
+
+					]
+				},
+{height:40},
+
+				{
+					cols:[
+					    {
+							width :650
+						},
+						{ view:"button", label:"Simple View",autoheight:true, borderless:true,autowidth:true,click:function(){
+																								window.location.href="html3.html";
+																								}  
+						},
+						{
+							width:50
+						},
+						{ view:"button", label:"Home", autoheight:true, borderless:true,autowidth:true,click:function(){
+																								window.location.href="html1.html";
+																								}  
+						}
+					  
+					]
+				},
+{}
+          ]
+
+        });
+
+		
+
+    </script>
+</body>
+
+</html>

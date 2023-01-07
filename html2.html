@@ -1,0 +1,394 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<link rel="stylesheet" href="http://cdn.webix.com/edge/webix.css" type="text/css">
+	<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=0cUawFRbBDfCa5-xBvZN4yLJln2_lP5veGlz5qvw9EiPWQy-nVoctM8spKjP0cd9JVM9w8odswqo1Nz7YSrLWNZgANUPkX8LI1TirDXEmGRF0buZEy7TvIEtn_x-yD5KVGJwDVwBsBbJFsnaEjNS3ZyZyYoNLbyr02_yQWb-5r159usXdtD_uf4u-062XrmIHOhJaqhtuVGPfWqSyk6ftyMhot8USjNQhLcSGX57cg9xbe-XfCcD9zgwtI1VQB8jVxT4dkJ9d_jb1MXEHZWBMmn9_0G9M957hIqG3oazxi00IUwMQQPm_pBR9cp_Fy9qmHoOHfEIKagc2o3W7r6KsbqU4yyIfK7FcT9Al2o6PnKR-oxGDQRwoD7oPGH-kjzoIZktEFo6aeAmXSKM-ZmpRpWUOit627uvHmcDoUY0IsWtbVk7tNgreoDHx8S37zEzhaQyqo0HCPdM0ErSWG3dxg" charset="UTF-8"></script><link rel="stylesheet" crossorigin="anonymous" href="https://gc.kis.v2.scr.kaspersky-labs.com/E3E8934C-235A-4B0E-825A-35A08381A191/abn/main.css?attr=aHR0cHM6Ly9kb2MtMTAtNTgtZG9jcy5nb29nbGV1c2VyY29udGVudC5jb20vZG9jcy9zZWN1cmVzYy8zYzd1M2N0cG84ZG5vZXQ3bzl1c25kczNsN3FxMmxyMi9ubW1ramJia2xkbm1rMHIyZnAxYTZhY3FqMWN2Y2wzZi8xNjE5NTU1NDAwMDAwLzA2ODk3MjU2MzkxNDA3MjgwOTM0LzA2ODk3MjU2MzkxNDA3MjgwOTM0LzF0bVM4VWZid1ZNd1lacl9hMm1LTXU4a19uR0FrdVRUVj9lPWRvd25sb2FkJmF1dGh1c2VyPTEmbm9uY2U9cWsyaTduZ2Vhdmw2NiZ1c2VyPTA2ODk3MjU2MzkxNDA3MjgwOTM0Jmhhc2g9N2UzOHF1dGZlZTFrODFmODA3MzI4djd2bDdmZWFhaWs"/><script src="http://cdn.webix.com/edge/webix.js" type="text/javascript"></script>
+	<style>
+		.up{
+        text-align: center;
+	}
+	</style>
+</head>
+<body >
+	<script type="text/javascript" charset="utf-8">
+	const json = `{
+	"tables": [
+		"automotive", "zoo"
+	],
+	"variables": [
+			{
+				"name": "BodyStyle",
+				"table": "automotive",
+				"type": "Categorical",
+				"levels": [
+					"convertible",
+					"hardtop",
+					"hatchback",
+					"sedan",
+					"wagon"
+				]
+			},
+			{
+				"name": "Length",
+				"table": "automotive",
+				"type": "Numerical",
+				"levels": [
+					"141.1",
+					"208.1"
+				]
+			},
+			{
+				"name": "Width",
+				"table": "automotive",
+				"type": "Numerical",
+				"levels": [
+					"50",
+					"100"
+				]
+			},
+			{
+				"name": "animal_name",
+				"table": "zoo",
+				"type": "Categorical",
+				"levels": ["Jerry", "Tom"]
+			}
+		]
+	}`;
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
+	const  exp= urlParams.get('temp');
+	//var exp="automotive";
+	var obj = JSON.parse(json);
+	var tables_config = [];
+	var tables_config1=[];
+	for (i of obj.variables) {
+		var table_config = {};
+		if(i.table===exp)
+		{
+		table_config.id = i.name;
+		table_config.value = i.name;
+		table_config.type = i.type;
+		tables_config.push(table_config);
+		}
+	}
+	ob = {}
+	for(val of obj.variables) {
+		l = [];
+		for( k in val.levels) {
+			l.push({value: val.levels[k], id:val.levels[k], type:val.type})
+		}
+		ob = { 
+			...ob, 
+			[val.name]: l
+		}
+	}
+		webix.ready(function(){
+		
+			
+			var form1 = [
+				{
+				view: "select",
+				id: "myselect1",
+				name:"jay1",
+				label: "variable",
+				value: tables_config[0].id, 
+				options: tables_config
+				},
+				{ view:"select", value: 1,id:"myselect2",name:"jay2", label:"Value", 
+				options: ob[tables_config[0].id]
+				},
+				{view:"text",id:"mytext1", name:"jay3", hidden:true,label:"Value",required:"true",attributes:{type:"number"} },
+				{view:"label",id:"mytext2", label:"hello", hidden: true},
+				{ view:"button", value:"Add", click:addData, name:"jay4", id:"jbutton"},
+				{ view:"button", value:"Remove", click:removeData},
+			];
+			var form2= [	
+				{ view:"datatable",
+				  id:"dt",
+				  select:true,
+				columns:[
+				{ id:"vari",name:"variable",header:"variable",width:200},
+				{ id:"val",name:"value",header:"value",width:100}
+				],
+				data:[
+				]
+				
+				},
+				{
+				 view: "button", value: "Submit", id: "Submit_btn",click:submitData
+				}
+				
+			];
+			
+			webix.ui({
+			id:"app",
+			 margin: 50,rows:[
+				{ view:"template", template:"<h1>Omnibus Data Analysis Engine</h1>", autoheight:true, borderless:true,css:"up"},
+				{ view:"template", template:"<h2>Request Recommendations</h2>", autoheight:true, borderless:true,css:"up"},
+				{
+					type:"space", margin:30, cols:[
+						{},
+						{
+						 view:"form",id:"myform1", width:300, elements: form1 
+						},
+						{
+						 view:"form",id:"myform2",  width:400, height:400,elements: form2 
+						},
+						{}
+					]
+				}
+			  ]
+			});
+			function submitData(){
+				if($$("dt").count() >0)
+				{
+					var tabledata=$$("dt").serialize();
+					if(count-1==1)
+					{
+						webix.alert({
+							title:"Alert",
+							text:"Please select one more numerical value",
+							type:"alert-error"
+						});
+					}
+					else
+					{
+					console.log("data table values",tabledata);
+					document.body.innerHTML = '';
+					webix.ui({
+						id:"loading1",
+						rows:[
+						{view: "template",template:"<h1>Calculating</h1>", autoheight:true, borderless:true,css:"up"},
+						{view: "template",template:"<h2>Please do not close the window</h2>", autoheight:true, borderless:true,css:"up"},
+						{cols:[
+							{},
+						{view:"template", autoheight :true, template:"<img src='load.gif' height='100px' width='100px'/>",align:'center', maxWidth:115, borderless:true},
+						{}
+							]},
+
+										]});
+						show_progress_icon(8000);
+					}
+				}
+				else if($$("dt").count() ===0)
+				{
+					webix.alert({
+						title:"Alert",
+						text:"Please add data ",
+						type:"alert-error"
+					});
+				}
+			}
+			
+			function setLimit(){
+				var lists = obj.variables.filter(e => e.type === "Numerical" && $$("myselect1").getValue() === e.name);
+				console.log(lists);
+				var x = "";
+				x += lists[0].levels.map(e => e);
+				console.log(x);
+				x = 'enter values between ' + x.replace(',',' and ');
+				$$("mytext2").setHTML(x);
+				$$("mytext1").setValue(lists[0].levels[0]);
+			}
+			function range()
+			{
+				//var jay = obj.variables.filter(e => e.type === "Numerical" && $$("myselect1").getValue() === e.name);
+				var a=Number($$("mytext1").getValue()) ;
+				var b=Number(ob[$$("myselect1").getValue()][0].value) ;
+				var c=Number(ob[$$("myselect1").getValue()][1].value);
+				 var z="";
+				 console.log(a);
+				 console.log(b);
+				 console.log(c);
+				if(a>=b && a<=c)
+				{
+					
+				console.log("true");
+					return "true" ;
+					
+				}
+				else
+				return "";
+				//console.log("false");
+				//return v;
+			}
+			
+			function checkMapping(){
+				var newv = $$('myselect1').getValue();
+				if(ob[newv][0].type === "Numerical"){
+					$$("mytext1").show();
+					$$("myselect2").hide();
+					$$("mytext2").show();
+					setLimit();
+				}else if( !($$("myselect2").isVisible()) )
+					{
+						$$("myselect2").show();
+						$$("mytext1").hide();
+						$$("mytext2").hide();
+					}
+				$$("myform1").elements["jay2"].define("options", []);
+				$$("myform1").elements["jay2"].define("options", ob[newv]);
+				$$("myform1").elements["jay2"].refresh();
+			}
+			
+			function toggle(newv, flag){
+				if(newv) {
+					if(ob[newv][0].type === "Numerical" && flag) {
+						$$("mytext1").show();
+						$$("myselect2").hide();
+						$$("mytext2").show();
+						setLimit();
+					}
+					else if(!($$("myselect2").isVisible()) && ob[$$("myselect1").getValue()][0].type !== "Numerical")
+					{
+						$$("myselect2").show();
+						$$("mytext1").hide();
+						$$("mytext2").hide();
+					}
+				
+				// added part
+					if(flag && ob[$$("myselect1").getValue()][0].type !== "Numerical") {
+						$$("myform1").elements["jay2"].define("options", []);
+						$$("myform1").elements["jay2"].define("options", ob[newv]);
+						$$("myform1").elements["jay2"].refresh();
+					}
+				} 
+				else {
+					
+					if(($$("mytext1").isVisible()))
+					{
+						$$("mytext1").data.value='';
+						$$("mytext1").refresh();
+					}
+					else 
+					{
+						$$("myform1").elements["jay2"].define("options", []);
+						$$("myform1").elements["jay2"].refresh();
+					}
+					$$("myform1").elements["jay4"].disable();
+				}
+			}
+			
+			$$("myform1").elements["jay1"].attachEvent("onChange", function(newv, oldv){
+				webix.message("Value changed from: "+oldv+" to: "+newv);
+				toggle(newv, true);
+			});
+			//var set1 = new Set(tables_config);
+			//3333 add
+			var count=1;
+			//3333 add
+			function addData(){
+			//setLimit();
+				webix.message("~~~add Data triggered~~");
+				//3333add
+				var isNumerical = ob[$$('myselect1').getValue()][0].type=="Numerical";
+				console.log("no:of numerical variables",count-1);
+				var values = $$("myform1").getValues();
+				if((isNumerical && $$("mytext1").isVisible() && $$("mytext1").getValue()&& range()) || !isNumerical){
+					if(count==1&& isNumerical)
+					{
+						webix.alert({
+							title:"Alert",
+							text:"Please select one more numerical value",
+							type:"alert-warning"
+						});
+						count++;
+					}
+					else if(count>1 && isNumerical)
+					{
+					count++;
+					}
+					if( $$("myselect2").isVisible() )
+					{
+						$$("dt").add({
+						vari:values["jay1"],
+						val:values["jay2"]
+						},0);
+				
+					}
+					else if(!($$("myselect2").isVisible())  )
+					{
+		
+							$$("dt").add({
+							vari:values["jay1"],
+							val:values["jay3"]
+							},0);
+						
+					}
+					var value =$$('myselect1').getValue();
+					console.log("dropdown1 selected value",value);
+					
+					var index=tables_config.findIndex(x => x.id ===$$('myselect1').getValue());
+					console.log("Index=",index);
+						tables_config.splice(index, 1);
+					console.log("after splice tables_config=",tables_config);
+					
+					$$("myform1").elements["jay1"].define("options", []);
+					$$("myform1").elements["jay1"].define("options", [...tables_config]);
+					$$('myselect1').refresh();
+					
+					var j = $$("myform1").elements["jay1"].$getValue();
+					toggle(j, true);
+				}
+				else
+				{
+					webix.alert({
+							title:"Alert",
+							text:" value should not be empty and should be in mentioned range",
+							type:"alert-error"
+						});
+				}
+					
+			}
+			function removeData(){
+			if(!$$("dt").getSelectedId()){
+				webix.message("No item is selected!");
+				return;
+			}
+			var ref = $$("dt").getItem($$("dt").getSelectedId()).vari;
+			if($$("dt").count() >0 && ob[ref][0].type=="Numerical" && count>0)
+			{
+				count--;
+			}	
+			$$("myform1").elements["jay4"].enable();
+			var mainValue = $$("myselect1").getValue();
+			var val = $$("dt").getItem($$("dt").getSelectedId()).vari;
+			var cat = $$("dt").getItem($$("dt").getSelectedId()).val;
+			var isValuePresent = $$('myselect1').getValue();
+			tables_config.push({id: val, value: val, type: ob[val][0].type});
+			$$("myform1").elements["jay1"].define("options", []);
+			$$("myform1").elements["jay1"].define("options", [...tables_config]);
+			
+			$$("myform1").elements["jay1"].refresh();
+			if($$("dt").count() > 1){
+				isValuePresent ? toggle(val, false) : toggle(val, true);
+			} else {
+				checkMapping();
+			}
+			$$("dt").remove($$("dt").getSelectedId());
+			if(mainValue){
+				$$("myselect1").setValue(mainValue);
+			} else {
+				tables_config.length && $$("myselect1").setValue(tables_config[0].id);
+			}
+			}
+		/*	
+		function destroy()
+		{
+			webix.delay(function(){
+					window.location.href="html3.html";
+					},null,null,2000);
+			webix.message("destroy all html");
+			document.body.innerHTML = '';
+		}*/
+	//	webix.extend($$("app"), webix.ProgressBar);
+		function show_progress_icon(delay){
+		  $$("app").disable();
+		  setTimeout(function(){
+			window.location.href="html3.html";
+		  }, delay);
+		};	
+});
+	</script>		
+</body>
+</html>

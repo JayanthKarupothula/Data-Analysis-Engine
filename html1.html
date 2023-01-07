@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<link rel="stylesheet" href="http://cdn.webix.com/edge/webix.css" type="text/css">
+	<script src="http://cdn.webix.com/edge/webix.js" type="text/javascript"></script>
+	<style>
+		.up{
+        text-align: center;
+	}
+    
+	</style>
+</head>
+
+<body style="background-color:white;">
+	
+    	<script type="text/javascript" charset="utf-8">
+            const json = `{
+    "tables": [
+        "automotive", "zoo"
+    ],
+    "variables": [{
+            "name": "BodyStyle",
+            "table": "automotive",
+            "type": "Categorical",
+            "levels": [
+                "convertible",
+                "hardtop",
+                "hatchback",
+                "sedan",
+                "wagon"
+            ]
+        },
+        {
+            "name": "Length",
+            "table": "automotive",
+            "type": "Numerical",
+            "levels": [
+                "141.1",
+                "208.1"
+            ]
+        },
+        {
+            "name": "animal_name",
+            "table": "zoo",
+            "type": "Categorical",
+            "levels": ["Jerry", "Tom"]
+        }
+    ]
+}
+`;
+
+    var obj = JSON.parse(json);
+
+    var tables1_config = [];
+    for (table_name of obj.tables) {
+        var table_config = {};
+        table_config.id = table_name;
+        table_config.value = table_name;
+        tables1_config.push(table_config);
+    }
+
+        webix.ui({
+			 margin:5,rows:[
+				{ view:"template", template:"<h1>Omnibus Data Analysis Engine</h2>", autoheight:true, borderless:true,css:"up"},
+				{
+					cols:[
+					{ view:"template", template:"<h2>Request Recommendations</h2>", autoheight:true, borderless:true,css:"up" }
+					]
+				},
+				{
+					cols:[
+					{},
+					{ view:"label", label: "Select a Dataset",align:"center", inputWidth:200 },
+					{}
+					]
+				},	
+				{
+					cols:[
+						{},
+						{
+							view:"combo", 
+							width:200,
+							id:"mycombo",
+							options: tables1_config
+						},
+						{}
+						
+					]
+				},
+				{
+				
+				view:"button", 
+				id:"my_button", 
+				value:"SUBMIT", 
+				css:"webix_primary", 
+				inputWidth:100,
+				align:"center",
+				click:submitData
+				}
+				
+			]
+	});
+	function submitData(){
+		var p=$$('mycombo').getValue();
+		if(p!="")
+		{
+		var temp;
+		window.location.href = "html2.html?temp="+p+" ";
+		}
+		else if(p==="")
+		{
+			webix.alert({
+						title:"Alert",
+						text:"Please select atleast one value",
+						type:"alert-error"
+					});
+		}
+	}
+</script>	
+</body>
+</html>
